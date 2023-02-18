@@ -18,11 +18,24 @@ app.get('/', function(req, res){
 app.post('/', function(req, res){
     let id = Number(req.body.pokemon);
     let url= 'https://pokeapi.co/api/v2/pokemon/' + id;
+    let pokeImg = `https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/${id}.svg`;
     console.log(url);
     https.get(url, function(response){
-       response.on('data', function(){
-        
+        var responseData = '';
+       response.on('data', function(dataChunk){
+        responseData += dataChunk;
        }); 
+
+       response.on('end', function(){
+        var pokeInfo = JSON.parse(responseData);
+        var pokemonName = pokeInfo.name;
+        var pokeType = pokeInfo.types[0].type.name;
+        res.write(`<h1>Name of the pokemon you searched is '${pokemonName}'</h1>`);
+        res.write(`<img src="${pokeImg}"`);
+        res.write(`<h3>The main type of the pokemon: ${pokeType}`);
+        res.send();
+    });
+
     });
 
 });
